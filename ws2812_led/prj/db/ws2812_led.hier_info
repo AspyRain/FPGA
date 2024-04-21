@@ -1,0 +1,7 @@
+|ws2812_ctrl
+sys_clk => ~NO_FANOUT~
+sys_rst_n => ~NO_FANOUT~
+bit => ~NO_FANOUT~
+dout <= <GND>
+
+
