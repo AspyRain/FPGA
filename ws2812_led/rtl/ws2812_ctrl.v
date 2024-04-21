@@ -151,5 +151,5 @@ always @(posedge sys_clk or negedge sys_rst_n) begin
     end
 end
 //数据输出
-assign dout = (flag_rst == 0 )?( (cnt_0 < `T0H ? 1'b0:1'b1)|(cnt_1 < `T1H ? 1'b0 : 1'b1) ): 1'b0;
+assign dout = (flag_rst == 0 )?( (cnt_0 < `T0H ? 1'b0 : 1'b1)|(cnt_1 < `T1H ? 1'b0 : 1'b1) ): 1'b0;
 endmodule
