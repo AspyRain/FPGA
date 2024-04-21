@@ -1,0 +1,20 @@
+module ledflow(
+    input clk,       // 时钟输入
+    output reg [3:0] lamps // 输出灯信号
+);
+
+reg [3:0] next_lamps; // 下一个状态的灯信号
+
+// 初始化灯信号
+initial begin
+    lamps = 4'b0001;
+    next_lamps = 4'b0010;
+end
+
+// 每个时钟周期更新灯状态
+always @(posedge clk) begin
+    lamps <= next_lamps;
+    next_lamps <= {next_lamps[2:0], next_lamps[3]};
+end
+
+endmodule
