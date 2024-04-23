@@ -326,8 +326,3 @@ assign  data[60]  =  {8'h00,8'h00,8'h00}  ;
 assign  data[61]  =  {8'h00,8'h00,8'h00}  ;
 assign  data[62]  =  {8'h00,8'h00,8'h00}  ;
 assign  data[63]  =  {8'h00,8'h00,8'h00}  ;
-
-begin
-    begin
-    end
-end
