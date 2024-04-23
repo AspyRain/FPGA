@@ -1,13 +1,13 @@
-Analysis & Synthesis Status : Successful - Sun Apr 21 15:59:49 2024
+Analysis & Synthesis Status : Successful - Mon Apr 22 14:30:59 2024
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Standard Edition
 Revision Name : ws2812_led
-Top-level Entity Name : ws2812_ctrl
+Top-level Entity Name : ws2812_top
 Family : Cyclone IV E
-Total logic elements : 0
-    Total combinational functions : 0
-    Dedicated logic registers : 0
-Total registers : 0
-Total pins : 4
+Total logic elements : 140
+    Total combinational functions : 140
+    Dedicated logic registers : 69
+Total registers : 69
+Total pins : 3
 Total virtual pins : 0
 Total memory bits : 0
 Embedded Multiplier 9-bit elements : 0

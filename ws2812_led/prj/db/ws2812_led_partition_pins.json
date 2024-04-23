@@ -2,7 +2,20 @@
 	"partitions" : [
 		{
 			"name" : "Top",
-			"pins" : []
+			"pins" : [
+				{
+					"name" : "dout",
+					"strict" : false
+				},
+				{
+					"name" : "sys_clk",
+					"strict" : false
+				},
+				{
+					"name" : "sys_rst_n",
+					"strict" : false
+				}
+			]
 		}
 	]
 }

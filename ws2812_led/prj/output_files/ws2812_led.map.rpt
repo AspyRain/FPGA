@@ -1,5 +1,5 @@
 Analysis & Synthesis report for ws2812_led
-Sun Apr 21 15:59:49 2024
+Mon Apr 22 14:30:59 2024
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Standard Edition
 
 
@@ -14,9 +14,11 @@ Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Standard Edition
   6. Analysis & Synthesis Resource Usage Summary
   7. Analysis & Synthesis Resource Utilization by Entity
   8. General Register Statistics
-  9. Post-Synthesis Netlist Statistics for Top Partition
- 10. Elapsed Time Per Partition
- 11. Analysis & Synthesis Messages
+  9. Parameter Settings for User Entity Instance: ws2812_ctrl:ws2812_ctrl_inst
+ 10. Parameter Settings for User Entity Instance: counter:counter_inst
+ 11. Post-Synthesis Netlist Statistics for Top Partition
+ 12. Elapsed Time Per Partition
+ 13. Analysis & Synthesis Messages
 
 
 
@@ -42,16 +44,16 @@ refer to the applicable agreement for further details.
 +--------------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                         ;
 +------------------------------------+-------------------------------------------------+
-; Analysis & Synthesis Status        ; Successful - Sun Apr 21 15:59:49 2024           ;
+; Analysis & Synthesis Status        ; Successful - Mon Apr 22 14:30:59 2024           ;
 ; Quartus Prime Version              ; 18.1.0 Build 625 09/12/2018 SJ Standard Edition ;
 ; Revision Name                      ; ws2812_led                                      ;
-; Top-level Entity Name              ; ws2812_ctrl                                     ;
+; Top-level Entity Name              ; ws2812_top                                      ;
 ; Family                             ; Cyclone IV E                                    ;
-; Total logic elements               ; 0                                               ;
-;     Total combinational functions  ; 0                                               ;
-;     Dedicated logic registers      ; 0                                               ;
-; Total registers                    ; 0                                               ;
-; Total pins                         ; 4                                               ;
+; Total logic elements               ; 140                                             ;
+;     Total combinational functions  ; 140                                             ;
+;     Dedicated logic registers      ; 69                                              ;
+; Total registers                    ; 69                                              ;
+; Total pins                         ; 3                                               ;
 ; Total virtual pins                 ; 0                                               ;
 ; Total memory bits                  ; 0                                               ;
 ; Embedded Multiplier 9-bit elements ; 0                                               ;
@@ -64,8 +66,8 @@ refer to the applicable agreement for further details.
 +------------------------------------------------------------------+--------------------+--------------------+
 ; Option                                                           ; Setting            ; Default Value      ;
 +------------------------------------------------------------------+--------------------+--------------------+
-; Device                                                           ; EP4CE6F17C8L       ;                    ;
-; Top-level entity name                                            ; ws2812_ctrl        ; ws2812_led         ;
+; Device                                                           ; EP4CE6F17C8        ;                    ;
+; Top-level entity name                                            ; ws2812_top         ; ws2812_led         ;
 ; Family name                                                      ; Cyclone IV E       ; Cyclone V          ;
 ; Use smart compilation                                            ; Off                ; Off                ;
 ; Enable parallel Assembler and Timing Analyzer during compilation ; On                 ; On                 ;
@@ -154,10 +156,11 @@ refer to the applicable agreement for further details.
 ; Maximum allowed            ; 16          ;
 ;                            ;             ;
 ; Average used               ; 1.00        ;
-; Maximum used               ; 1           ;
+; Maximum used               ; 16          ;
 ;                            ;             ;
 ; Usage by Processor         ; % Time Used ;
 ;     Processor 1            ; 100.0%      ;
+;     Processors 2-16        ;   0.0%      ;
 +----------------------------+-------------+
 
 
@@ -166,48 +169,55 @@ refer to the applicable agreement for further details.
 +----------------------------------+-----------------+------------------------+---------------------------------------------------+---------+
 ; File Name with User-Entered Path ; Used in Netlist ; File Type              ; File Name with Absolute Path                      ; Library ;
 +----------------------------------+-----------------+------------------------+---------------------------------------------------+---------+
+; ../rtl/counter.v                 ; yes             ; User Verilog HDL File  ; D:/study/github/FPGA/ws2812_led/rtl/counter.v     ;         ;
+; ../rtl/ws2812_top.v              ; yes             ; User Verilog HDL File  ; D:/study/github/FPGA/ws2812_led/rtl/ws2812_top.v  ;         ;
 ; ../rtl/ws2812_ctrl.v             ; yes             ; User Verilog HDL File  ; D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v ;         ;
+; ../rtl/data_cfg.v                ; yes             ; User Verilog HDL File  ; D:/study/github/FPGA/ws2812_led/rtl/data_cfg.v    ;         ;
 +----------------------------------+-----------------+------------------------+---------------------------------------------------+---------+
 
 
-+-------------------------------------------------------+
-; Analysis & Synthesis Resource Usage Summary           ;
-+---------------------------------------------+---------+
-; Resource                                    ; Usage   ;
-+---------------------------------------------+---------+
-;                                             ;         ;
-; Total combinational functions               ; 0       ;
-; Logic element usage by number of LUT inputs ;         ;
-;     -- 4 input functions                    ; 0       ;
-;     -- 3 input functions                    ; 0       ;
-;     -- <=2 input functions                  ; 0       ;
-;                                             ;         ;
-; Logic elements by mode                      ;         ;
-;     -- normal mode                          ; 0       ;
-;     -- arithmetic mode                      ; 0       ;
-;                                             ;         ;
-; Total registers                             ; 0       ;
-;     -- Dedicated logic registers            ; 0       ;
-;     -- I/O registers                        ; 0       ;
-;                                             ;         ;
-; I/O pins                                    ; 4       ;
-;                                             ;         ;
-; Embedded Multiplier 9-bit elements          ; 0       ;
-;                                             ;         ;
-; Maximum fan-out node                        ; sys_clk ;
-; Maximum fan-out                             ; 1       ;
-; Total fan-out                               ; 4       ;
-; Average fan-out                             ; 0.50    ;
-+---------------------------------------------+---------+
++-------------------------------------------------------------+
+; Analysis & Synthesis Resource Usage Summary                 ;
++---------------------------------------------+---------------+
+; Resource                                    ; Usage         ;
++---------------------------------------------+---------------+
+; Estimated Total logic elements              ; 140           ;
+;                                             ;               ;
+; Total combinational functions               ; 140           ;
+; Logic element usage by number of LUT inputs ;               ;
+;     -- 4 input functions                    ; 43            ;
+;     -- 3 input functions                    ; 8             ;
+;     -- <=2 input functions                  ; 89            ;
+;                                             ;               ;
+; Logic elements by mode                      ;               ;
+;     -- normal mode                          ; 82            ;
+;     -- arithmetic mode                      ; 58            ;
+;                                             ;               ;
+; Total registers                             ; 69            ;
+;     -- Dedicated logic registers            ; 69            ;
+;     -- I/O registers                        ; 0             ;
+;                                             ;               ;
+; I/O pins                                    ; 3             ;
+;                                             ;               ;
+; Embedded Multiplier 9-bit elements          ; 0             ;
+;                                             ;               ;
+; Maximum fan-out node                        ; sys_clk~input ;
+; Maximum fan-out                             ; 69            ;
+; Total fan-out                               ; 607           ;
+; Average fan-out                             ; 2.82          ;
++---------------------------------------------+---------------+
 
 
-+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; Analysis & Synthesis Resource Utilization by Entity                                                                                                                                                      ;
-+----------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+---------------------+-------------+--------------+
-; Compilation Hierarchy Node ; Combinational ALUTs ; Dedicated Logic Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; Full Hierarchy Name ; Entity Name ; Library Name ;
-+----------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+---------------------+-------------+--------------+
-; |ws2812_ctrl               ; 0 (0)               ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 4    ; 0            ; |ws2812_ctrl        ; ws2812_ctrl ; work         ;
-+----------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+---------------------+-------------+--------------+
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Resource Utilization by Entity                                                                                                                                                                                  ;
++-----------------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+------------------------------------------+-------------+--------------+
+; Compilation Hierarchy Node        ; Combinational ALUTs ; Dedicated Logic Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; Full Hierarchy Name                      ; Entity Name ; Library Name ;
++-----------------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+------------------------------------------+-------------+--------------+
+; |ws2812_top                       ; 140 (0)             ; 69 (0)                    ; 0           ; 0            ; 0       ; 0         ; 3    ; 0            ; |ws2812_top                              ; ws2812_top  ; work         ;
+;    |counter:counter_inst|         ; 53 (53)             ; 30 (30)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |ws2812_top|counter:counter_inst         ; counter     ; work         ;
+;    |data_cfg:data_cfg_inst|       ; 12 (12)             ; 0 (0)                     ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |ws2812_top|data_cfg:data_cfg_inst       ; data_cfg    ; work         ;
+;    |ws2812_ctrl:ws2812_ctrl_inst| ; 75 (75)             ; 39 (39)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |ws2812_top|ws2812_ctrl:ws2812_ctrl_inst ; ws2812_ctrl ; work         ;
++-----------------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+------------------------------------------+-------------+--------------+
 Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
 
 
@@ -216,14 +226,39 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 +----------------------------------------------+-------+
 ; Statistic                                    ; Value ;
 +----------------------------------------------+-------+
-; Total registers                              ; 0     ;
-; Number of registers using Synchronous Clear  ; 0     ;
+; Total registers                              ; 69    ;
+; Number of registers using Synchronous Clear  ; 14    ;
 ; Number of registers using Synchronous Load   ; 0     ;
-; Number of registers using Asynchronous Clear ; 0     ;
+; Number of registers using Asynchronous Clear ; 69    ;
 ; Number of registers using Asynchronous Load  ; 0     ;
-; Number of registers using Clock Enable       ; 0     ;
+; Number of registers using Clock Enable       ; 14    ;
 ; Number of registers using Preset             ; 0     ;
 +----------------------------------------------+-------+
+
+
++---------------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: ws2812_ctrl:ws2812_ctrl_inst ;
++----------------+-------+--------------------------------------------------+
+; Parameter Name ; Value ; Type                                             ;
++----------------+-------+--------------------------------------------------+
+; T0H            ; 30    ; Signed Integer                                   ;
+; T0L            ; 15    ; Signed Integer                                   ;
+; T1H            ; 30    ; Signed Integer                                   ;
+; T1L            ; 30    ; Signed Integer                                   ;
+; RST            ; 15000 ; Signed Integer                                   ;
++----------------+-------+--------------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++-------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: counter:counter_inst ;
++----------------+-------+------------------------------------------+
+; Parameter Name ; Value ; Type                                     ;
++----------------+-------+------------------------------------------+
+; TIME_MS        ; 1000  ; Signed Integer                           ;
+; TIME_MAX       ; 3     ; Signed Integer                           ;
++----------------+-------+------------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
 
 +-----------------------------------------------------+
@@ -231,13 +266,22 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 +-----------------------+-----------------------------+
 ; Type                  ; Count                       ;
 +-----------------------+-----------------------------+
-; boundary_port         ; 4                           ;
-; cycloneiii_lcell_comb ; 1                           ;
-;     normal            ; 1                           ;
-;         0 data inputs ; 1                           ;
+; boundary_port         ; 3                           ;
+; cycloneiii_ff         ; 69                          ;
+;     CLR               ; 41                          ;
+;     CLR SCLR          ; 14                          ;
+;     ENA CLR           ; 14                          ;
+; cycloneiii_lcell_comb ; 140                         ;
+;     arith             ; 58                          ;
+;         2 data inputs ; 58                          ;
+;     normal            ; 82                          ;
+;         1 data inputs ; 6                           ;
+;         2 data inputs ; 25                          ;
+;         3 data inputs ; 8                           ;
+;         4 data inputs ; 43                          ;
 ;                       ;                             ;
-; Max LUT depth         ; 0.00                        ;
-; Average LUT depth     ; 0.00                        ;
+; Max LUT depth         ; 9.00                        ;
+; Average LUT depth     ; 4.08                        ;
 +-----------------------+-----------------------------+
 
 
@@ -256,33 +300,48 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Standard Edition
-    Info: Processing started: Sun Apr 21 15:59:38 2024
+    Info: Processing started: Mon Apr 22 14:30:48 2024
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off ws2812_led -c ws2812_led
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
 Info (20030): Parallel compilation is enabled and will use 16 of the 16 processors detected
-Warning (10463): Verilog HDL Declaration warning at ws2812_ctrl.v(10): "bit" is SystemVerilog-2005 keyword File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 10
-Warning (10229): Verilog HDL Expression warning at ws2812_ctrl.v(53): truncated literal to match 4 bits File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 53
+Info (12021): Found 1 design units, including 1 entities, in source file /study/github/fpga/ws2812_led/rtl/counter.v
+    Info (12023): Found entity 1: counter File: D:/study/github/FPGA/ws2812_led/rtl/counter.v Line: 1
+Warning (10463): Verilog HDL Declaration warning at ws2812_top.v(9): "bit" is SystemVerilog-2005 keyword File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_top.v Line: 9
+Info (12021): Found 1 design units, including 1 entities, in source file /study/github/fpga/ws2812_led/rtl/ws2812_top.v
+    Info (12023): Found entity 1: ws2812_top File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_top.v Line: 1
+Warning (10463): Verilog HDL Declaration warning at ws2812_ctrl.v(4): "bit" is SystemVerilog-2005 keyword File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 4
 Info (12021): Found 1 design units, including 1 entities, in source file /study/github/fpga/ws2812_led/rtl/ws2812_ctrl.v
-    Info (12023): Found entity 1: ws2812_ctrl File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 7
-Info (12127): Elaborating entity "ws2812_ctrl" for the top level hierarchy
-Warning (10858): Verilog HDL warning at ws2812_ctrl.v(15): object flag_0 used but never assigned File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 15
-Warning (10034): Output port "dout" at ws2812_ctrl.v(13) has no driver File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 13
-Warning (12158): Entity "ws2812_ctrl" contains only dangling pins
-Warning (13024): Output pins are stuck at VCC or GND
-    Warning (13410): Pin "dout" is stuck at GND File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 13
+    Info (12023): Found entity 1: ws2812_ctrl File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 1
+Warning (10463): Verilog HDL Declaration warning at data_cfg.v(7): "bit" is SystemVerilog-2005 keyword File: D:/study/github/FPGA/ws2812_led/rtl/data_cfg.v Line: 7
+Info (12021): Found 1 design units, including 1 entities, in source file /study/github/fpga/ws2812_led/rtl/data_cfg.v
+    Info (12023): Found entity 1: data_cfg File: D:/study/github/FPGA/ws2812_led/rtl/data_cfg.v Line: 1
+Warning (10222): Verilog HDL Parameter Declaration warning at counter.v(8): Parameter Declaration in module "counter" behaves as a Local Parameter Declaration because the module has a Module Parameter Port List File: D:/study/github/FPGA/ws2812_led/rtl/counter.v Line: 8
+Warning (10222): Verilog HDL Parameter Declaration warning at counter.v(9): Parameter Declaration in module "counter" behaves as a Local Parameter Declaration because the module has a Module Parameter Port List File: D:/study/github/FPGA/ws2812_led/rtl/counter.v Line: 9
+Info (12127): Elaborating entity "ws2812_top" for the top level hierarchy
+Warning (10036): Verilog HDL or VHDL warning at ws2812_top.v(12): object "cnt_in_data" assigned a value but never read File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_top.v Line: 12
+Warning (10230): Verilog HDL assignment warning at ws2812_top.v(14): truncated value with size 32 to match size of target (4) File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_top.v Line: 14
+Info (12128): Elaborating entity "ws2812_ctrl" for hierarchy "ws2812_ctrl:ws2812_ctrl_inst" File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_top.v Line: 24
+Warning (10230): Verilog HDL assignment warning at ws2812_ctrl.v(47): truncated value with size 32 to match size of target (6) File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 47
+Warning (10230): Verilog HDL assignment warning at ws2812_ctrl.v(66): truncated value with size 32 to match size of target (6) File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 66
+Warning (10230): Verilog HDL assignment warning at ws2812_ctrl.v(85): truncated value with size 32 to match size of target (5) File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 85
+Warning (10230): Verilog HDL assignment warning at ws2812_ctrl.v(104): truncated value with size 32 to match size of target (7) File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 104
+Warning (10230): Verilog HDL assignment warning at ws2812_ctrl.v(123): truncated value with size 32 to match size of target (14) File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 123
+Info (12128): Elaborating entity "data_cfg" for hierarchy "data_cfg:data_cfg_inst" File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_top.v Line: 32
+Warning (10036): Verilog HDL or VHDL warning at data_cfg.v(8): object "ges_pic" assigned a value but never read File: D:/study/github/FPGA/ws2812_led/rtl/data_cfg.v Line: 8
+Info (10264): Verilog HDL Case Statement information at data_cfg.v(16): all case item expressions in this case statement are onehot File: D:/study/github/FPGA/ws2812_led/rtl/data_cfg.v Line: 16
+Warning (10030): Net "data[255..192]" at data_cfg.v(9) has no driver or initial value, using a default initial value '0' File: D:/study/github/FPGA/ws2812_led/rtl/data_cfg.v Line: 9
+Info (12128): Elaborating entity "counter" for hierarchy "counter:counter_inst" File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_top.v Line: 40
+Info (286030): Timing-Driven Synthesis is running
 Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
     Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
-Warning (21074): Design contains 3 input pin(s) that do not drive logic
-    Warning (15610): No output dependent on input pin "sys_clk" File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 8
-    Warning (15610): No output dependent on input pin "sys_rst_n" File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 9
-    Warning (15610): No output dependent on input pin "bit" File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_ctrl.v Line: 10
-Info (21057): Implemented 4 device resources after synthesis - the final resource count might be different
-    Info (21058): Implemented 3 input pins
+Info (21057): Implemented 143 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 2 input pins
     Info (21059): Implemented 1 output pins
-Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 12 warnings
-    Info: Peak virtual memory: 4734 megabytes
-    Info: Processing ended: Sun Apr 21 15:59:49 2024
+    Info (21061): Implemented 140 logic cells
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 15 warnings
+    Info: Peak virtual memory: 4834 megabytes
+    Info: Processing ended: Mon Apr 22 14:30:59 2024
     Info: Elapsed time: 00:00:11
-    Info: Total CPU time (on all processors): 00:00:06
+    Info: Total CPU time (on all processors): 00:00:07
 
 

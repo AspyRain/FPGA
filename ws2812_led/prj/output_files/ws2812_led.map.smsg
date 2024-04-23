@@ -1,0 +1,1 @@
+Warning (10268): Verilog HDL information at ws2812_top.v(14): always construct contains both blocking and non-blocking assignments File: D:/study/github/FPGA/ws2812_led/rtl/ws2812_top.v Line: 14
