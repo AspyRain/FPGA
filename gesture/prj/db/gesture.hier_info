@@ -1,0 +1,34 @@
+|i2c_ctrl
+sys_clk => i2c_clk.CLK
+sys_clk => cnt_i2c[0].CLK
+sys_clk => cnt_i2c[1].CLK
+sys_clk => cnt_i2c[2].CLK
+sys_clk => cnt_i2c[3].CLK
+sys_clk => cnt_i2c[4].CLK
+sys_rst_n => cnt_bit[0].ACLR
+sys_rst_n => cnt_bit[1].ACLR
+sys_rst_n => cnt_bit[2].ACLR
+sys_rst_n => cnt_i2c_clk[0].ACLR
+sys_rst_n => cnt_i2c_clk[1].ACLR
+sys_rst_n => cnt_wait[0].ACLR
+sys_rst_n => cnt_wait[1].ACLR
+sys_rst_n => cnt_wait[2].ACLR
+sys_rst_n => cnt_wait[3].ACLR
+sys_rst_n => cnt_wait[4].ACLR
+sys_rst_n => cnt_wait[5].ACLR
+sys_rst_n => cnt_wait[6].ACLR
+sys_rst_n => cnt_wait[7].ACLR
+sys_rst_n => cnt_wait[8].ACLR
+sys_rst_n => cnt_wait[9].ACLR
+sys_rst_n => cnt_i2c[0].ACLR
+sys_rst_n => cnt_i2c[1].ACLR
+sys_rst_n => cnt_i2c[2].ACLR
+sys_rst_n => cnt_i2c[3].ACLR
+sys_rst_n => cnt_i2c[4].ACLR
+sys_rst_n => i2c_clk.ACLR
+sys_rst_n => skip_en_1~3.DATAIN
+sys_rst_n => state_c~3.DATAIN
+scl <= Selector7.DB_MAX_OUTPUT_PORT_TYPE
+sda <> sda
+
+

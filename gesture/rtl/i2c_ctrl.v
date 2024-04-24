@@ -1,6 +1,8 @@
 module i2c_ctrl (
     input        wire   sys_clk,
-    input        wire   sys_rst_n    
+    input        wire   sys_rst_n,
+    output       wire    scl,
+    inout        wire    sda
 );
 parameter I2C_DIV_FRQ = 5'd25;
 parameter   IDLE = 2'd0,
@@ -8,22 +10,41 @@ parameter   IDLE = 2'd0,
             SLAVE_ID = 2'd2,
             STOP = 2'd3;
 parameter   MAX = 1_000;
+parameter   SLAVE = 7'h73;
 
 reg         [1:0]         state_c     ;
 reg         [1:0]         state_n     ;
 
 
-reg         [5-1:0]      cnt_i2c    ; //计数器
+reg         [5-1:0]     cnt_i2c    ; //计数器
 wire                    add_cnt_i2c; //开始计数
 wire                    end_cnt_i2c; //计数器最大值
-reg                     i2c_clk ;
-reg          [2:0]      skip_en_1;
+reg                     i2c_clk ;//i2c时钟
+reg          [2:0]      skip_en_1;//唤醒操作跳转时能
 reg          [1:0]      cnt_i2c_clk;
 reg          [9:0]      cnt_wait;
 reg          [2:0]      cnt_bit;
-reg                    i2c_end;
-reg          [2:0]      step;
+reg                     i2c_end; // i2c结束寄存器
+reg          [2:0]      step;//步骤计数寄存器
+reg                     i2c_scl;//i2c驱动时钟
+reg                     i2c_sda;//i2c数据寄存器
+reg          [7:0]      slave_addr;//从机地址寄存器
+wire                    sda_in;//从机输入信号
+wire                    sda_en;//三态门开关
 
+assign scl = i2c_scl;//i2c 驱动时钟输出
+
+//三态门
+assign sda_en = 1'b1;
+assign sda_in = sda;
+assign sda = (sda_en == 1'b1) ? i2c_sda : 1'bz;
+
+always @(*) begin
+    case (step)
+        3'd0:slave_addr = {SLAVE,1'b0};//ID + 写 
+        default: slave_addr =8'h00;
+    endcase
+end
 always @(posedge sys_clk or negedge sys_rst_n) begin
     if (!sys_rst_n)begin
          cnt_i2c <= 5'b0;
@@ -106,7 +127,7 @@ always @(*) begin
 end
 
 //第三段 描述动作
-always @(posedge sys_clk or negedge sys_rst_n) begin
+always @(posedge i2c_clk or negedge sys_rst_n) begin
     if (!sys_rst_n)begin
         cnt_wait     <= 10'd0;
         skip_en_1    <= 1'b0;
@@ -186,5 +207,36 @@ always @(posedge sys_clk or negedge sys_rst_n) begin
         endcase
     end
 end
+
+//i2c_scl信号约束
+always @(*) begin
+    case (state_c)
+        IDLE:begin
+            i2c_scl = 1'b1;
+        end  
+        START:begin
+            i2c_scl=cnt_i2c_clk < 2'd3;
+        end
+        SLAVE_ID:begin
+            i2c_scl=(cnt_i2c_clk == 2'd3 || cnt_i2c_clk == 2'd0)? 1'd0:1'd1;
+        end
+        STOP:begin
+            i2c_scl=cnt_i2c_clk > 2'd0;
+        end
+        default:    i2c_scl = 1'b1;
+    endcase
+end
+
+//i2c_sda信号约束
+always @(*) begin
+    case (state_c)   
+        IDLE:           i2c_sda = 1'b1;
+        START:          i2c_sda = cnt_i2c_clk < 2'd2;
+        SLAVE_ID:       i2c_sda = slave_addr[7-cnt_bit];
+        default: i2c_sda=1'b1;
+    endcase
+end
+
+
 
 endmodule
