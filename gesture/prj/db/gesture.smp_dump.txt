@@ -1,9 +1,4 @@
 
-State Machine - |i2c_ctrl|skip_en_1
-Name skip_en_1.001 
-skip_en_1.000 0 
-skip_en_1.001 1 
-
 State Machine - |i2c_ctrl|state_c
 Name state_c.STOP state_c.SLAVE_ID state_c.START state_c.IDLE 
 state_c.IDLE 0 0 0 0 

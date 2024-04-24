@@ -1,50 +1,54 @@
 module i2c_ctrl (
-    input        wire   sys_clk,
-    input        wire   sys_rst_n,
-    output       wire    scl,
-    inout        wire    sda
+    input        wire   sys_clk     ,
+    input        wire   sys_rst_n   ,
+    output       wire   scl         ,
+    inout        wire   sda
 );
-parameter I2C_DIV_FRQ = 5'd25;
+parameter I2C_DIV_FRQ = 5'd25; //
 parameter   IDLE = 2'd0,
             START = 2'd1,
             SLAVE_ID = 2'd2,
             STOP = 2'd3;
-parameter   MAX = 1_000;
-parameter   SLAVE = 7'h73;
+parameter   MAX = 1_000;//1000us
+parameter   SLAVE   =   7'h73;//器件的id号
 
 reg         [1:0]         state_c     ;
 reg         [1:0]         state_n     ;
 
 
-reg         [5-1:0]     cnt_i2c    ; //计数器
+reg         [5-1:0]      cnt_i2c    ; //计数器
 wire                    add_cnt_i2c; //开始计数
 wire                    end_cnt_i2c; //计数器最大值
-reg                     i2c_clk ;//i2c时钟
-reg          [2:0]      skip_en_1;//唤醒操作跳转时能
+reg                     i2c_clk ;
+reg                     skip_en_1;
 reg          [1:0]      cnt_i2c_clk;
 reg          [9:0]      cnt_wait;
-reg          [2:0]      cnt_bit;
-reg                     i2c_end; // i2c结束寄存器
-reg          [2:0]      step;//步骤计数寄存器
-reg                     i2c_scl;//i2c驱动时钟
-reg                     i2c_sda;//i2c数据寄存器
-reg          [7:0]      slave_addr;//从机地址寄存器
-wire                    sda_in;//从机输入信号
-wire                    sda_en;//三态门开关
+reg          [2:0]      cnt_bit;    //
 
-assign scl = i2c_scl;//i2c 驱动时钟输出
+reg                    i2c_end;
 
-//三态门
-assign sda_en = 1'b1;
-assign sda_in = sda;
-assign sda = (sda_en == 1'b1) ? i2c_sda : 1'bz;
+reg          [2:0]      step;
+reg                    i2c_scl;
+reg                    i2c_sda;
 
-always @(*) begin
-    case (step)
-        3'd0:slave_addr = {SLAVE,1'b0};//ID + 写 
-        default: slave_addr =8'h00;
+reg          [7:0]     slave_addr;//从机地址寄存器
+wire              sda_in;//从机输入信号 
+wire              sda_en;//三态门开关
+
+//三态门  
+
+assign  scl = i2c_scl;//i2c驱动时钟
+assign  sda_in = sda;//i2c数据
+assign  sda_en = 1'b1;
+assign  sda = (sda_en == 1'b1) ? i2c_sda: 1'dz;//拉高从机发数据
+
+always @(*)begin
+    case(step)
+        2'd0:   slave_addr  =   {SLAVE, 1'b0};//ID+Write
+        default: slave_addr =   8'h00;
     endcase
 end
+
 always @(posedge sys_clk or negedge sys_rst_n) begin
     if (!sys_rst_n)begin
          cnt_i2c <= 5'b0;
@@ -146,19 +150,19 @@ always @(posedge i2c_clk or negedge sys_rst_n) begin
                     cnt_wait <= cnt_wait + 1'd1;
                 end
                 if (cnt_wait == MAX - 2'd2)begin
-                    skip_en_1 = 1'd1 ;
+                    skip_en_1 <= 1'd1 ;
                 end
                 else begin
-                    skip_en_1 = 1'd0 ;
+                    skip_en_1 <= 1'd0 ;
                 end
             end
             START:   begin
                 cnt_i2c_clk <= cnt_i2c_clk + 1'd1;
                 if (cnt_i2c_clk == 2'd2)begin
-                    skip_en_1 = 1'd1 ;
+                    skip_en_1 <= 1'd1 ;
                 end
                 else begin
-                    skip_en_1 = 1'd0 ;
+                    skip_en_1 <= 1'd0 ;
                 end
             end
             SLAVE_ID:begin
@@ -215,13 +219,13 @@ always @(*) begin
             i2c_scl = 1'b1;
         end  
         START:begin
-            i2c_scl=cnt_i2c_clk < 2'd3;
+            i2c_scl =cnt_i2c_clk < 2'd3;
         end
         SLAVE_ID:begin
-            i2c_scl=(cnt_i2c_clk == 2'd3 || cnt_i2c_clk == 2'd0)? 1'd0:1'd1;
+            i2c_scl = cnt_i2c_clk ==2'd1 || cnt_i2c_clk == 2'd2;
         end
         STOP:begin
-            i2c_scl=cnt_i2c_clk > 2'd0;
+            i2c_scl = cnt_i2c_clk > 2'd0;
         end
         default:    i2c_scl = 1'b1;
     endcase
@@ -229,14 +233,19 @@ end
 
 //i2c_sda信号约束
 always @(*) begin
-    case (state_c)   
-        IDLE:           i2c_sda = 1'b1;
-        START:          i2c_sda = cnt_i2c_clk < 2'd2;
-        SLAVE_ID:       i2c_sda = slave_addr[7-cnt_bit];
-        default: i2c_sda=1'b1;
+    case (state_c)
+        IDLE:begin
+            i2c_sda = 1'b1;
+        end  
+        START:begin
+            i2c_sda = cnt_i2c_clk < 2'd2;
+        end
+        SLAVE_ID:begin
+            i2c_sda = slave_addr[7 - cnt_bit];//高位先发
+        end
+        STOP:begin
+            i2c_sda = cnt_i2c_clk > 2'd1;
+        end
     endcase
 end
-
-
-
 endmodule
