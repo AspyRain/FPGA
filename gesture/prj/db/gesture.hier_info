@@ -5,11 +5,16 @@ sys_clk => cnt_i2c[1].CLK
 sys_clk => cnt_i2c[2].CLK
 sys_clk => cnt_i2c[3].CLK
 sys_clk => cnt_i2c[4].CLK
+sys_rst_n => step[0].ACLR
+sys_rst_n => step[1].ACLR
+sys_rst_n => step[2].ACLR
 sys_rst_n => cnt_bit[0].ACLR
 sys_rst_n => cnt_bit[1].ACLR
 sys_rst_n => cnt_bit[2].ACLR
 sys_rst_n => cnt_i2c_clk[0].ACLR
 sys_rst_n => cnt_i2c_clk[1].ACLR
+sys_rst_n => skip_en_3.ACLR
+sys_rst_n => skip_en_2.ACLR
 sys_rst_n => skip_en_1.ACLR
 sys_rst_n => cnt_wait[0].ACLR
 sys_rst_n => cnt_wait[1].ACLR
@@ -28,7 +33,7 @@ sys_rst_n => cnt_i2c[3].ACLR
 sys_rst_n => cnt_i2c[4].ACLR
 sys_rst_n => i2c_clk.ACLR
 sys_rst_n => state_c~3.DATAIN
-scl <= Selector6.DB_MAX_OUTPUT_PORT_TYPE
+scl <= Selector17.DB_MAX_OUTPUT_PORT_TYPE
 sda <> sda
 
 

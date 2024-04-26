@@ -1,7 +1,12 @@
 
 State Machine - |i2c_ctrl|state_c
-Name state_c.STOP state_c.SLAVE_ID state_c.START state_c.IDLE 
-state_c.IDLE 0 0 0 0 
-state_c.START 0 0 1 1 
-state_c.SLAVE_ID 0 1 0 1 
-state_c.STOP 1 0 0 1 
+Name state_c.ACK_3 state_c.DATA state_c.ACK_2 state_c.DEVICE_ADDR state_c.ACK_1 state_c.SLAVE_ID state_c.START state_c.IDLE state_c.STOP 
+state_c.IDLE 0 0 0 0 0 0 0 0 0 
+state_c.START 0 0 0 0 0 0 1 1 0 
+state_c.SLAVE_ID 0 0 0 0 0 1 0 1 0 
+state_c.ACK_1 0 0 0 0 1 0 0 1 0 
+state_c.DEVICE_ADDR 0 0 0 1 0 0 0 1 0 
+state_c.ACK_2 0 0 1 0 0 0 0 1 0 
+state_c.DATA 0 1 0 0 0 0 0 1 0 
+state_c.ACK_3 1 0 0 0 0 0 0 1 0 
+state_c.STOP 0 0 0 0 0 0 0 1 1 

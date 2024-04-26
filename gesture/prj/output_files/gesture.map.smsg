@@ -1,0 +1,1 @@
+Info (10281): Verilog HDL Declaration information at i2c_ctrl.v(14): object "DEVICE_ADDR" differs only in case from object "device_addr" in the same scope File: D:/study/github/FPGA/gesture/rtl/i2c_ctrl.v Line: 14
