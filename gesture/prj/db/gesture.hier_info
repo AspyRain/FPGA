@@ -13,6 +13,7 @@ sys_rst_n => cnt_bit[1].ACLR
 sys_rst_n => cnt_bit[2].ACLR
 sys_rst_n => cnt_i2c_clk[0].ACLR
 sys_rst_n => cnt_i2c_clk[1].ACLR
+sys_rst_n => skip_en_4.ACLR
 sys_rst_n => skip_en_3.ACLR
 sys_rst_n => skip_en_2.ACLR
 sys_rst_n => skip_en_1.ACLR
@@ -32,8 +33,17 @@ sys_rst_n => cnt_i2c[2].ACLR
 sys_rst_n => cnt_i2c[3].ACLR
 sys_rst_n => cnt_i2c[4].ACLR
 sys_rst_n => i2c_clk.ACLR
+sys_rst_n => recv_data[0].ACLR
+sys_rst_n => recv_data[1].ACLR
+sys_rst_n => recv_data[2].ACLR
+sys_rst_n => recv_data[3].ACLR
+sys_rst_n => recv_data[4].ACLR
+sys_rst_n => recv_data[5].ACLR
+sys_rst_n => recv_data[6].ACLR
+sys_rst_n => recv_data[7].ACLR
 sys_rst_n => state_c~3.DATAIN
-scl <= Selector17.DB_MAX_OUTPUT_PORT_TYPE
+sys_rst_n => err_en.ENA
+scl <= Selector23.DB_MAX_OUTPUT_PORT_TYPE
 sda <> sda
 
 

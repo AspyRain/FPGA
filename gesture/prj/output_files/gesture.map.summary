@@ -1,14 +1,14 @@
-Analysis & Synthesis Status : Successful - Fri Apr 26 10:33:20 2024
+Analysis & Synthesis Status : Successful - Fri Apr 26 15:44:35 2024
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Standard Edition
 Revision Name : gesture
 Top-level Entity Name : i2c_ctrl
 Family : Cyclone IV E
-Total logic elements : 918
-    Total combinational functions : 605
-    Dedicated logic registers : 667
-Total registers : 667
+Total logic elements : 1,078
+    Total combinational functions : 670
+    Dedicated logic registers : 787
+Total registers : 787
 Total pins : 4
 Total virtual pins : 0
-Total memory bits : 32,768
+Total memory bits : 51,200
 Embedded Multiplier 9-bit elements : 0
 Total PLLs : 0

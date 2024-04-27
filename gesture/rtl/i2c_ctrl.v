@@ -1,8 +1,16 @@
 module i2c_ctrl(
-    input   wire sys_clk    ,
-    input   wire sys_rst_n  ,
-    output  wire scl        ,
-    inout   wire sda
+    input   wire            sys_clk     ,
+    input   wire            sys_rst_n   ,
+    input   wire    [5:0]   cfg_num     ,//第几个数据
+    input   wire    [15:0]  cfg_data    ,//配置数据
+    input   wire            i2c_start   ,//i2c开始配置
+
+    output  reg     [2:0]   step        ,//步骤计数寄存器
+    output  reg     [1: 0]  cnt_i2c_clk ,//i2c驱动时钟计数寄存器
+    output  reg             cfg_start   ,//启动配置模块
+
+    output  wire            scl         ,
+    inout   wire            sda
 );
 parameter I2C_DIV_FRQ = 5'd25;
 parameter MAX           = 10'd1000;//1000us
@@ -21,7 +29,6 @@ parameter IDLE          = 4'd0,
 reg [3: 0] state_c;//现态
 reg [3: 0] state_n;//次态
 reg [9: 0] cnt_wait;//1000us计数寄存器
-reg [1: 0] cnt_i2c_clk;//i2c驱动时钟计数寄存器
 reg [4: 0] cnt_i2c;//i2c时钟计数寄存器
 reg [2: 0] cnt_bit;//8位计数寄存器
 wire       add_cnt_i2c;
@@ -35,9 +42,9 @@ reg        skip_en_1;//唤醒操作跳转使能
 reg        skip_en_2;//激活bank0跳转使能
 reg        skip_en_3;//配置0x00寄存器跳转使能
 reg        skip_en_4;//0x00寄存器跳转使能
+reg        skip_en_5;//配置51寄存器跳转使能
 reg        err_en   ;//错误使能
 
-reg [2: 0] step     ;//步骤计数寄存器
 reg [7: 0] slave_addr;//从机地址寄存器
 reg [7:0]  device_addr;
 reg [7:0]   wr_data;
@@ -64,8 +71,14 @@ always @(*)begin
             device_addr  =  {8'h00};//0x00寄存器 地址
         end
         // 第四步增加代码
-        3'd3:     begin
+        3'd3:       begin
             slave_addr = {SLAVE,1'b1};
+        end
+        //第五步代码
+        3'd4:       begin
+            slave_addr   = {SLAVE,1'b0};
+            device_addr  = {cfg_data[15:8]};//设备
+            wr_data      = {cfg_data[7:0]};  
         end
         default: begin
             slave_addr = 8'h00;
@@ -105,7 +118,7 @@ always @(posedge sys_clk or negedge sys_rst_n)begin
         i2c_clk <= i2c_clk;
     end 
 end
-//三段式状态机，第一段，实训逻辑
+//三段式状态机，第一段，时序逻辑
 always @(posedge i2c_clk or negedge sys_rst_n)begin
     if(!sys_rst_n)begin
         state_c <= IDLE;
@@ -118,7 +131,7 @@ end
 always @(*)begin
     case(state_c)
         IDLE:       begin
-                        if((skip_en_1 == 1'b1) || (skip_en_2 == 1'b1) || (skip_en_3 == 1'd1)|| (skip_en_4 == 1'd1))begin
+                        if((skip_en_1 == 1'b1) || (skip_en_2 == 1'b1) || (skip_en_3 == 1'd1)|| (skip_en_4 == 1'd1)|| (skip_en_5 == 1'd1))begin
                            state_n = START; 
                         end
                         else begin
@@ -126,7 +139,7 @@ always @(*)begin
                         end 
                     end 
         START:      begin
-                        if((skip_en_1 == 1'b1) || (skip_en_2 == 1'b1)||(skip_en_3 == 1'b1) || (skip_en_4 == 1'd1))begin
+                        if((skip_en_1 == 1'b1) || (skip_en_2 == 1'b1)||(skip_en_3 == 1'b1) || (skip_en_4 == 1'd1)|| (skip_en_5 == 1'd1))begin
                             state_n = SLAVE_ID;
                         end 
                         else begin
@@ -137,7 +150,7 @@ always @(*)begin
                         if(skip_en_1 == 1'b1 )begin
                             state_n = STOP;
                         end 
-                        else if ((skip_en_2 == 1'b1 )||(skip_en_3 == 1'b1)|| (skip_en_4 == 1'd1))begin
+                        else if ((skip_en_2 == 1'b1 )||(skip_en_3 == 1'b1)|| (skip_en_4 == 1'd1)|| (skip_en_5 == 1'd1))begin
                             state_n = ACK_1;
                         end
                         else begin
@@ -145,15 +158,18 @@ always @(*)begin
                         end 
                     end 
         ACK_1:      begin
-                        if ((skip_en_2 == 1'b1) ||(skip_en_3 == 1'b1))begin
+                        if ((skip_en_2 == 1'b1) ||(skip_en_3 == 1'b1)|| (skip_en_5 == 1'd1))begin
                             state_n = DEVICE_ADDR;
+                        end
+                        else if (skip_en_4 == 1'b1)begin
+                            state_n = DATA;
                         end
                         else begin
                             state_n = ACK_1;
                         end   
         end
         DEVICE_ADDR:begin
-                        if ((skip_en_2 == 1'b1) ||(skip_en_3 == 1'b1))begin
+                        if ((skip_en_2 == 1'b1) ||(skip_en_3 == 1'b1)||(skip_en_4 == 1'b1)|| (skip_en_5 == 1'd1))begin
                             state_n = ACK_2;
                         end
                         else begin
@@ -161,7 +177,7 @@ always @(*)begin
                         end
         end
         ACK_2      :begin
-                        if (skip_en_2 == 1'b1)begin
+                        if ((skip_en_2 == 1'b1) || (skip_en_5 == 1'd1))begin
                             state_n = DATA;
                         end
                         else if (skip_en_3 == 1'b1)begin
@@ -172,7 +188,7 @@ always @(*)begin
                         end
         end
         DATA       :begin
-                        if (skip_en_2 == 1'b1)begin
+                        if (skip_en_2 == 1'b1 || (skip_en_5 == 1'd1))begin
                             state_n = ACK_3;
                         end
                         else if (skip_en_4 == 1'b1)begin
@@ -194,7 +210,7 @@ always @(*)begin
                         end
         end
         ACK_3       :begin
-                        if (skip_en_2 == 1'b1)begin
+                        if ((skip_en_2 == 1'b1) || (skip_en_5 == 1'd1))begin
                             state_n = STOP;
                         end
                         else begin
@@ -202,7 +218,7 @@ always @(*)begin
                         end
         end                                 
         STOP    :   begin
-                        if((skip_en_1 == 1'b1) || (skip_en_2 == 1'b1) ||(skip_en_3 == 1'b1)|| (skip_en_4 == 1'd1))begin
+                        if((skip_en_1 == 1'b1) || (skip_en_2 == 1'b1) ||(skip_en_3 == 1'b1)|| (skip_en_4 == 1'd1)||(skip_en_5 == 1'd1))begin
                             state_n = IDLE;
                         end 
                         else begin
@@ -221,6 +237,8 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
         skip_en_2   <= 1'b0;
         skip_en_3   <= 1'b0;
         skip_en_4   <= 1'b0;
+        skip_en_5   <= 1'b0;
+        cfg_start   <= 1'b0;
 
         cnt_i2c_clk <= 2'd0 ;
         cnt_bit     <= 3'd0 ;
@@ -264,6 +282,14 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                             else begin
                                 skip_en_4 <= 1'b0;
                             end 
+
+                            // 5_step重点
+                            if( (i2c_start == 1'b1) && (step == 3'd4))begin
+                                skip_en_5 <= 1'b1;
+                            end 
+                            else begin
+                                skip_en_5 <= 1'b0;
+                            end 
                         end 
             START:      begin
                             cnt_i2c_clk <= cnt_i2c_clk + 1'd1;//0~3
@@ -294,6 +320,13 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                             end 
                             else begin
                                 skip_en_4 <= 1'b0;
+                            end  
+
+                            if((cnt_i2c_clk == 2'd2)  && (step == 3'd4))begin
+                                skip_en_5 <= 1'b1;
+                            end 
+                            else begin
+                                skip_en_5 <= 1'b0;
                             end  
                         end 
             SLAVE_ID:   begin
@@ -335,6 +368,13 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                             else begin
                                 skip_en_4 <= 1'b0;
                             end 
+
+                            if(cnt_i2c_clk == 2'd2 && cnt_bit == 3'd7 &&  (step == 3'd4))begin
+                                skip_en_5 <= 1'b1;
+                            end 
+                            else begin
+                                skip_en_5 <= 1'b0;
+                            end 
                         end
             ACK_1:      begin
                             cnt_i2c_clk <= cnt_i2c_clk + 1'd1;
@@ -358,6 +398,13 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                             end
                             else begin
                                 skip_en_4 <= 1'b0;
+                            end
+
+                            if ((ack == 1'b1)&&(cnt_i2c_clk == 3'd2)&& (step==3'd4))begin
+                                skip_en_5 <= 1'b1;
+                            end
+                            else begin
+                                skip_en_5 <= 1'b0;
                             end
             end
             DEVICE_ADDR:begin
@@ -394,29 +441,43 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                             else begin
                                 skip_en_4 <= 1'b0;
                             end 
+
+                            if((cnt_i2c_clk == 2'd2) && (cnt_bit == 3'd7) &&  (step == 3'd4))begin
+                                skip_en_5 <= 1'b1;
+                            end 
+                            else begin
+                                skip_en_5 <= 1'b0;
+                            end 
                         end
             ACK_2:      begin
                             cnt_i2c_clk <= cnt_i2c_clk + 1'd1;
 
-                            if ((ack == 1'b1)&&(cnt_i2c_clk == 3'd2)&& (step==3'd1))begin
+                            if ((ack == 1'b1)&&(cnt_i2c_clk == 3'd2) && (step==3'd1))begin
                                 skip_en_2 <= 1'b1;
                             end
                             else begin
                                 skip_en_2 <= 1'b0;
                             end
 
-                            if ((ack == 1'b1)&&(cnt_i2c_clk == 3'd2)&& (step==3'd2))begin
+                            if ((ack == 1'b1)&&(cnt_i2c_clk == 3'd2) && (step==3'd2))begin
                                 skip_en_3 <= 1'b1;
                             end
                             else begin
                                 skip_en_3 <= 1'b0;
                             end
 
-                            if ((ack == 1'b1)&&(cnt_i2c_clk == 3'd2)&& (step==3'd3))begin
+                            if ((ack == 1'b1)&&(cnt_i2c_clk == 3'd2) && (step==3'd3))begin
                                 skip_en_4 <= 1'b1;
                             end
                             else begin
                                 skip_en_4 <= 1'b0;
+                            end
+
+                            if ((ack == 1'b1)&&(cnt_i2c_clk == 3'd2) && (step==3'd4))begin
+                                skip_en_5 <= 1'b1;
+                            end
+                            else begin
+                                skip_en_5 <= 1'b0;
                             end
             end
             DATA:       begin
@@ -445,6 +506,13 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                                 skip_en_4 <= 1'b0;
                             end
 
+                            if((cnt_i2c_clk == 2'd2) && (cnt_bit == 3'd7) &&  (step == 3'd4))begin
+                                skip_en_5 <= 1'b1;
+                            end 
+                            else begin
+                                skip_en_5 <= 1'b0;
+                            end
+
                             if((cnt_i2c_clk == 2'd2) && (cnt_bit == 3'd7) &&  (step == 3'd3) && (recv_data != 8'h20))begin
                                 err_en <= 1'b1;
                                 step   <= 3'd0;
@@ -453,6 +521,7 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                                 err_en <= 1'b0;
                                 step   <= step;
                             end
+
 
             end 
             NACK :      begin
@@ -471,6 +540,13 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                             end
                             else begin
                                 skip_en_2 <= 1'b0;
+                            end
+
+                            if ((ack == 1'b1)&&(cnt_i2c_clk == 3'd2)&& (step==3'd4))begin
+                                skip_en_5 <= 1'b1;
+                            end
+                            else begin
+                                skip_en_5 <= 1'b0;
                             end
             end
             STOP:       begin
@@ -503,7 +579,28 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                                 skip_en_4 <= 1'b0;
                             end
 
-                            if (cnt_i2c_clk == 2'd2)begin
+                            if((cnt_i2c_clk == 2'd2)  && (step == 3'd4) )begin
+                                skip_en_5 <= 1'b1;
+                            end 
+                            else begin
+                                skip_en_5 <= 1'b0;
+                            end
+
+                            if((cnt_i2c_clk == 2'd3)  && (step == 3'd4) )begin
+                                cfg_start <= 1'b1;
+                            end 
+                            else begin
+                                cfg_start <= 1'b0;
+                            end
+
+                            if((cnt_i2c_clk == 2'd2)  && (step == 3'd4) && (cfg_num == 6'd51))begin
+                                step <= step + 1'd1;
+                            end 
+                            else begin
+                                step <= step ;
+                            end
+
+                            if ((cnt_i2c_clk == 2'd2) && (step != 3'd4) )begin
                                 step <= step + 1'd1;
                             end
                             else begin
@@ -516,6 +613,8 @@ always @(posedge i2c_clk or negedge sys_rst_n)begin
                             skip_en_2   <= 1'b0 ;
                             skip_en_3   <= 1'b0 ;
                             skip_en_4   <= 1'b0 ;
+                            skip_en_5   <= 1'b0 ;
+                            cfg_start   <= 1'b0 ;
                             cnt_i2c_clk <= 2'd0 ;
                             cnt_bit     <= 3'd0 ;
                             i2c_end     <= 1'b0 ;
