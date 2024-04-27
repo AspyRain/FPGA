@@ -5,13 +5,40 @@ module cfg_ctrl (
     input           wire                    cfg_start   ,//什么时候开始配置
 
 
-    output          wire        [5:0]       cfg_num     ,//当前是第几个数据
+    output          reg        [5:0]       cfg_num     ,//当前是第几个数据
     output          wire        [15:0]      cfg_data    ,//数据    
-    output          wire                    i2c_start    //数据就绪             
+    output          reg                    i2c_start    //数据就绪             
 );
+//cfg_num
+
+always @(posedge i2c_clk or negedge sys_rst_n) begin
+    if (!sys_rst_n)begin
+        cfg_num <= 6'd0;
+    end
+    else if ((cfg_start == 1'b1) && (step == 3'd4))begin
+        cfg_num <= cfg_num +1'd1;
+    end
+    else begin
+        cfg_num <= cfg_num;
+    end
+end 
+
+//i2c_start
+always @(posedge i2c_clk or negedge sys_rst_n) begin
+    if (!sys_rst_n)begin
+        i2c_start <= 1'b0;
+    end
+    else if ((cfg_start == 1'b1) && (step == 3'd4))begin
+        i2c_start <= 1'b1;
+    end
+    else begin
+        i2c_start <= 1'b0;
+    end
+end
+
 wire    [15:0]  data[50:0];//配置数据
 
-
+assign cfg_data = (step == 3'd4)?data[cfg_num - 1]:16'h0000;
 assign data[00] = {8'hEF,8'h00};
 assign data[01] = {8'h37,8'h07};
 assign data[02] = {8'h38,8'h17};

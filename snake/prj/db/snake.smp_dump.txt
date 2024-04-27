@@ -1,0 +1,25 @@
+
+State Machine - |test_top|i2c_ctrl:i2c_ctrl_inst|state_c
+Name state_c.STOP state_c.NACK state_c.WAIT state_c.DATA state_c.DEVICE_ADDR state_c.ACK_3 state_c.ACK_2 state_c.ACK_1 state_c.SLAVE_ADDR state_c.START state_c.IDLE 
+state_c.IDLE 0 0 0 0 0 0 0 0 0 0 0 
+state_c.START 0 0 0 0 0 0 0 0 0 1 1 
+state_c.SLAVE_ADDR 0 0 0 0 0 0 0 0 1 0 1 
+state_c.ACK_1 0 0 0 0 0 0 0 1 0 0 1 
+state_c.ACK_2 0 0 0 0 0 0 1 0 0 0 1 
+state_c.ACK_3 0 0 0 0 0 1 0 0 0 0 1 
+state_c.DEVICE_ADDR 0 0 0 0 1 0 0 0 0 0 1 
+state_c.DATA 0 0 0 1 0 0 0 0 0 0 1 
+state_c.WAIT 0 0 1 0 0 0 0 0 0 0 1 
+state_c.NACK 0 1 0 0 0 0 0 0 0 0 1 
+state_c.STOP 1 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - |test_top|my_snake:my_snake_inst|state
+Name state.DIE state.ORIGIN state.TURN_L state.RIGHT state.UP state.DOWN state.LEFT state.TURN_R 
+state.LEFT 0 0 0 0 0 0 0 0 
+state.DOWN 0 0 0 0 0 1 1 0 
+state.UP 0 0 0 0 1 0 1 0 
+state.RIGHT 0 0 0 1 0 0 1 0 
+state.TURN_L 0 0 1 0 0 0 1 0 
+state.ORIGIN 0 1 0 0 0 0 1 0 
+state.DIE 1 0 0 0 0 0 1 0 
+state.TURN_R 0 0 0 0 0 0 1 1 
