@@ -4,6 +4,7 @@ module test_top(
 
     output  wire        scl        ,
     inout   wire        sda        ,
+    
     output  wire [3: 0] led,
     output wire dout,
 
@@ -16,10 +17,13 @@ module test_top(
     output  [23:0] count    ,
     output [4:0]     state,
     output [4:0] next_state,
-
-
+    output [5:0] score_position,
+    output            en_random,  
+    output  [31:0] lfsr_state,
 
     output  [7:0]   dig     ,
+    output  [2:0]  snake_len   ,
+    output         flag_add,
     input           key     ,
     output          pwm     
 );
@@ -27,9 +31,10 @@ wire [4: 0]  cnt_bit    ;
 wire [6: 0]  cnt_pixel  ;
 wire         bit        ;
 wire [3: 0]  ges_data   ;
+
 wire [(8*6)-1:0]   snake_body;
 wire [(8*6)-1:0]   snake_index;
-reg [(8*6)-1:0]   snake_roll_index;
+
 wire [7:0]   po_data;
 wire [2: 0]     step        ;
 wire [5: 0]     cfg_num     ;
@@ -38,12 +43,20 @@ wire            cfg_start   ;
 wire            i2c_clk     ;
 wire            i2c_start   ;
 wire            roll_cnt    ;
-wire    [5:0]   sp;
+wire [5:0]      water_index;
+wire snake_en;
+
+
     wire    [16:0]  dout_beep    ;
     wire           flag=1'b1    ; // Assuming flag is an input or an internal signal
-wire snake_en;
-wire [5:0] water_index;
 
+
+    // beep        inst_beep(
+    //     .clk        (sys_clk     ),
+    //     .rst_n      (sys_rst_n   ),
+    //     .flag      (flag    ),
+    //     .pwm       (pwm     )
+    // );
 
 ws2812_ctrl ws2812_ctrl_inst(
 .sys_clk     (sys_clk   ),
@@ -59,7 +72,10 @@ data_cfg    data_cfg_inst(
 .cnt_bit     (cnt_bit   ),
 .cnt_pixel   (cnt_pixel ),
 .ges_data    (ges_data  ),
-.index_data  (snake_index),
+.cnt_in      (cnt_index),
+.snakebody_data  (snake_body),
+.start_show_data(snake_index),
+.score_position(score_position),
 .bit         (bit       )
 );
 
@@ -67,13 +83,18 @@ my_snake   my_snake_inst(
 .sys_clk    (sys_clk    ),
 .sys_rst_n  (sys_rst_n),
 .po_data    (po_data     ),
-.snake_en   (snake_en    ),
 .snake_body (snake_body  ),
 .move       (move        ),
 .sel        (my_sel        ),
 .snake_clk  (snake_clk   ),
 .snake_clk1 (snake_clk1  ),
-.count      (count       )
+.count      (count       ),
+.score_position(score_position),
+.en_random  (en_random   ),
+.snake_len  (snake_len   ),
+.flag_add   (flag_add    ),
+.snake_en   (snake_en    ),
+.lfsr_state (lfsr_state)
 );
 
 paj7620_cfg paj7620_cfg_inst(
@@ -109,17 +130,6 @@ led_ctrl    led_ctrl_inst(
           
 .led            (led        )
 );
-counter#(
-    .TIME_MS(20),    // TIME_MS参数的值为100
-    .TIME_MAX(64)      // TIME_MAX参数的值为5
-  )      counter_inst_2(
-.sys_clk     (sys_clk   ),
-.sys_rst_n   (sys_rst_n ),
-.cnt_en      (~snake_en),
-.add_cnt1    (roll_cnt),
-.cnt_out     (water_index)
-);
-
 start_roll start_roll(
 .sys_clk     (sys_clk   ),
 .sys_rst_n   (sys_rst_n ),
@@ -129,6 +139,17 @@ start_roll start_roll(
 
 .snake_index (snake_index),
 .snake_en   (snake_en)
+);
+
+counter#(
+    .TIME_MS(20),    // TIME_MS参数的值为100
+    .TIME_MAX(64)      // TIME_MAX参数的值为5
+  )      counter_inst_2(
+.sys_clk     (sys_clk   ),
+.sys_rst_n   (sys_rst_n ),
+.cnt_en      (~snake_en),
+.add_cnt1    (roll_cnt),
+.cnt_out     (water_index)
 );
 
 endmodule
