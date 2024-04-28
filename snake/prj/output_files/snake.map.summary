@@ -1,12 +1,12 @@
-Analysis & Synthesis Status : Successful - Sun Apr 28 14:41:53 2024
+Analysis & Synthesis Status : Successful - Sun Apr 28 18:24:06 2024
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Standard Edition
 Revision Name : snake
 Top-level Entity Name : test_top
 Family : Cyclone IV E
-Total logic elements : 1,286
-    Total combinational functions : 1,202
-    Dedicated logic registers : 239
-Total registers : 239
+Total logic elements : 499
+    Total combinational functions : 461
+    Dedicated logic registers : 184
+Total registers : 184
 Total pins : 66
 Total virtual pins : 0
 Total memory bits : 0

@@ -2,13 +2,13 @@ module data_cfg(
     input  wire [4: 0]  cnt_bit         ,
     input  wire [6: 0]  cnt_pixel       ,
     input  wire [3: 0]  ges_data        ,             
-    input  wire [(8*6)-1:0] index_data        ,
+    input  wire [47:0] index_data  ,
+    input  wire [5:0]   score_position ,
+
     output wire         bit
 );
 reg  [1: 0]   ges_pic;
 reg [23: 0]  data[63: 0];
-
-parameter snake_len = 3'd4;
 
 assign bit = data[0 * 64 + cnt_pixel][23 - cnt_bit];
 
@@ -80,14 +80,17 @@ assign bit = data[0 * 64 + cnt_pixel][23 - cnt_bit];
 
 integer i;
 integer j;
-always @* begin
+parameter snake_len = 4;
+parameter  max_len= 4'd8;
+always @ (*)  begin
     for (i = 0; i < 64; i = i + 1) begin
-         data[i] <= {8'h00, 8'h00, 8'h00};
-        for ( j = 0; j < snake_len ; j = j +1) begin
-            data[i] <= (((i == index_data[5:0]) || (i == index_data[11:6]) || (i == index_data[17:12]) || (i == index_data[23:18]) || (i == index_data[29:24])  || (i == index_data[35:30])  || (i == index_data[41:36])  || (i == index_data[47:42])) ? {8'h11, 8'h00, 8'h00} : {8'h00, 8'h00, 8'h00});
+        data[i] = {8'h00, 8'h00, 8'h00};
+        for (j = 0; j < snake_len; j = j + 1) begin
+            data[i] = ((i == (index_data[(6*max_len-1) - (j * 6) -: 5])) ? {8'h11, 8'h00, 8'h00} : {8'h00, 8'h00, 8'h00});
         end
     end
 end
+
 
 
 always @(*) begin

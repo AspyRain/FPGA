@@ -38,6 +38,7 @@ wire            cfg_start   ;
 wire            i2c_clk     ;
 wire            i2c_start   ;
 wire            roll_cnt    ;
+wire    [5:0]   sp;
     wire    [16:0]  dout_beep    ;
     wire           flag=1'b1    ; // Assuming flag is an input or an internal signal
 wire snake_en;
