@@ -30,7 +30,7 @@ module tubu(
                 4'd2: dig <= TWO;
                 4'd3: dig <= THR;
                 4'd4: dig <= FOU;
-                4'd5: dig <= FIV;
+                4'd5: dig <= ZER;
                 4'd6: dig <= SIX;
                 4'd7: dig <= SEV;
                 4'd8: dig <= EIG;
