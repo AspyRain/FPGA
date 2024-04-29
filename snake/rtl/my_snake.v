@@ -1,21 +1,23 @@
 module my_snake(
     input sys_clk,
     input sys_rst_n,    // Freshly brainwashed Lemmings walk left.
-	input wire  [7: 0] po_data  ,
-	input wire	snake_en		,
-	output wire [3: 0] sel		,
-	output wire move			,
-    output reg  [23:0] snake_body,//4*6 = 24//[23:6]
-	output reg snake_clk		,
-	output reg [23:0]count		,
-	output reg snake_clk1		,
-	output reg [4:0]	state	,
-	output reg [4:0] next_state	,
-	output reg [5:0] score_position,
-	output reg		 flag_add	,
-	output 			 en_random  ,
-	output reg [31:0] lfsr_state,
-	output reg [2:0]snake_len
+	input 	wire	[7: 0]	po_data  		,
+	input 	wire			snake_en		,
+	output 	wire 	[3: 0] 	sel				,
+	output 	wire 			move			,
+    output 	reg  	[23:0] 	snake_body		,//4*6 = 24//[23:6]
+	output 	reg 			snake_clk		,
+	output 	reg 	[23:0]	count			,
+	output 	reg 			snake_clk1		,
+	output 	reg 	[4:0]	state			,
+	output 	reg 	[4:0] 	next_state		,
+	output 	reg 	[5:0] 	score_position	,
+	output	reg		[2:0]	score			,
+	output 	reg		 		flag_add		,
+	output 			 		en_random  		,
+	output	reg 	[31:0] 	lfsr_state		,
+	output	reg 	[2:0]	snake_len			
+
 	);  
 	
 	assign sel = po_data[3: 0];
@@ -28,19 +30,14 @@ module my_snake(
 					DOWN	=5'd2,
 					LEFT	=5'd3,
 					RIGHT	=5'd4,
-					TURN_L	=5'd5, 
-
-					ORIGIN	=5'd6,
-					DIE		=5'd7,
-					TURN_R  =5'd8,
-
-					START   =5'd9;
+					START   =5'd5,
+					WIN 	=5'd6;
 
 	
 
 
 
-	parameter CNT_500MS = 24'd10_000_000;//0.25ms
+	parameter CNT_500MS = 24'd10_000_000;//0.25ms设置为12_499_999就不行了
 	wire end_cnt500ms;
 	wire en_cnt500ms;
 
@@ -52,9 +49,10 @@ module my_snake(
 	assign body_i2 = snake_body[17:12];
 	assign body_i1 = snake_body[11:6];
 	assign body_i0 = snake_body[5:0];
-
+	//CNT_500MS - score * 2_000_000;
  	
 
+	//伪随机数，随机生成分数红点的位置
 	always @(posedge sys_clk or negedge sys_rst_n) begin
 		if (!sys_rst_n)
 		begin
@@ -66,7 +64,6 @@ module my_snake(
 			flag_add <= 0;
 		end
 		else if(en_random)begin
-		// LFSR 算法
 			lfsr_state <= {lfsr_state[30:0], lfsr_state[0] ^ lfsr_state[1]};
 			//lfsr_state <= {lfsr_state[0],lfsr_state[31:1]};
 
@@ -80,6 +77,7 @@ module my_snake(
 			flag_add <= flag_add;
 		end
 	end
+	//检测是否撞到得分红点
 	assign en_random  = (
 		score_position == head_i3 ||
 	 	score_position == body_i2 || 
@@ -88,9 +86,15 @@ module my_snake(
 		)?  1 : 0;
 	
 
-
-
-
+	always @(posedge sys_clk or negedge sys_rst_n)begin//组合不可以，时序可以？
+		if(!sys_rst_n) score <= 0;
+		else if(en_random)begin
+			score <= score + 1;
+		end
+		else begin
+			score <= score;
+		end
+	end
 	always @(posedge sys_clk or negedge sys_rst_n) begin
 	if (!sys_rst_n) begin
 		count <= 0;
@@ -109,7 +113,7 @@ module my_snake(
 	end
 	end
 	assign en_cnt500ms = 1;
-	assign end_cnt500ms = en_cnt500ms && (count == CNT_500MS);
+	assign end_cnt500ms = en_cnt500ms && (count == CNT_500MS - (score * 2_000_000));
 
 
 	always @(posedge sys_clk or negedge sys_rst_n)begin
@@ -134,10 +138,11 @@ module my_snake(
 
 
 	always @(*) begin
-		if(snake_en == 1'b1)
-		next_state = LEFT;
-
-		if(sel == 4'b0001)begin
+		if(snake_en == 1'b1) begin
+		if(score == 3'd5)begin
+			next_state = WIN;
+		end 
+		else if(sel == 4'b0001)begin
 		next_state = UP;
 		end
 		else if(sel == 4'b0010)begin
@@ -152,7 +157,7 @@ module my_snake(
 		else begin
 			case (state)
 			START:begin
-				if(snake_en)next_state = LEFT;
+				if(snake_en== 1'b1)next_state = LEFT;
 				else  next_state = START;
 			end
 			UP:begin
@@ -168,18 +173,17 @@ module my_snake(
 			RIGHT:begin
 				next_state = RIGHT;
 			end
-			TURN_L:begin
-			end	
-			TURN_R:begin
-				
-			end
-			DIE:begin
-				
+			WIN:begin
+				next_state = WIN;
 			end
 			default:next_state = LEFT;
 		endcase
-
 		end
+		end
+		else begin
+			next_state = START;
+		end
+
 	end
 
     always @(posedge sys_clk or negedge sys_rst_n) begin
@@ -195,7 +199,6 @@ module my_snake(
 			else begin
 			case (next_state)
 			START:begin 
-
 			end
 			UP:begin
 
@@ -228,6 +231,8 @@ module my_snake(
 					else if(body_i1 % 8 == 7)snake_body <= {head_i3+1,head_i3,body_i2,snake_body[11:6]};//2107
 					else if(body_i0 % 8 == 7)snake_body <= {head_i3+1,head_i3,body_i2,body_i1};
 					else snake_body <= {head_i3+1,snake_body[23:6]};
+			end
+			WIN:begin
 			end
 			default:begin 
 				snake_body <= snake_body;

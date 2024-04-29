@@ -1,21 +1,24 @@
 module data_cfg(
-    input  wire [4: 0]  cnt_bit         ,
-    input  wire [6: 0]  cnt_pixel       ,
-    input  wire [3: 0]  ges_data        ,
-    input  wire [3:0 ]  cnt_in          ,
-    input  wire [(4*6)-1:0] snakebody_data  ,
-    input snake_en                      ,     
-    input  wire [47:0]  start_show_data ,
-    input  wire [5:0]   score_position  ,
-    output wire         bit
+    input       [4: 0]      cnt_bit         ,
+    input       [6: 0]      cnt_pixel       ,
+    input       [3: 0]      ges_data        ,
+    input       [3:0 ]      cnt_in          ,
+    input       [(4*6)-1:0] snakebody_data  ,
+    input                   snake_en        ,     
+    input       [47:0]      start_show_data ,
+    input       [5:0]       score_position  ,
+    input       wire        en_2            ,
+    output                  bit
 );
-reg  [1: 0]   ges_pic;
-wire [23: 0]  data1[63: 0];
-reg [23: 0]  data[63: 0];
-wire [23: 0]  colors[63: 0];
+reg     [1: 0   ]   ges_pic         ;
+wire    [23: 0  ]   data1[63: 0]    ;
+reg     [23: 0  ]   data[63: 0]     ;
+wire    [23: 0  ]   colors[63: 0]   ;
+
+wire    [47:0   ]   index_data      ;
+wire [23: 0]  data_champin[255: 0];
 parameter green = 24'h110000;
 parameter red = 24'h001100;
-wire [47:0] index_data;
 
 assign index_data = snake_en ? snakebody_data : start_show_data;
 
@@ -23,35 +26,27 @@ assign bit = data1[cnt_in * 64 + cnt_pixel][23 - cnt_bit];
 
 //assign colors[score_position] = red;
 
-genvar k;//需要定义宽度？
+genvar k;
+genvar j;
+parameter len = 4'd4;
 generate
-    for(k=0;k<64;k=k+1) begin : data_gen
-    // if(score_position == k)
-    //     assign data[k] = ((score_position == k)||(k == index_data[5:0])||(k == index_data[11:6])||(k == index_data[17:12])||(k == index_data[23:18]))?green:0; 
-    // else 
-    //     assign data[k] = ((score_position == k)||(k == index_data[5:0])||(k == index_data[11:6])||(k == index_data[17:12])||(k == index_data[23:18]))?green:0; 
-    // end
-    assign data1[k] = (score_position == k) ? 
-    ((score_position == k)||(k == index_data[5:0])||(k == index_data[11:6])||(k == index_data[17:12])||(k == index_data[23:18]) ? red : 0)
-     : 
-    ((score_position == k)||(k == index_data[5:0])||(k == index_data[11:6])||(k == index_data[17:12])||(k == index_data[23:18]) ? green : 0);
-
-    //assign data[k] = ((score_position == k)||(k == index_data[5:0])||(k == index_data[11:6])||(k == index_data[17:12])||(k == index_data[23:18]))?green:0; 
+    for (k = 0; k < 64; k = k + 1) begin : data_gen
+            assign data1[k] =(en_2 == 1'b1) ? (data_champin[k]) :((score_position == k) ? red : ((k == index_data[5:0])||(k == index_data[11:6])||(k == index_data[17:12])||(k == index_data[23:18]) ? green : 0));
     end
 endgenerate
 
-integer i;
-integer j;
-parameter snake_len = 4;
-parameter  max_len= 4'd8;
-always @ (*)  begin
-    for (i = 0; i < 64; i = i + 1) begin
-        data[i] = {8'h00, 8'h00, 8'h00};
-        for (j = 0; j < snake_len; j = j + 1) begin
-            data[i] = ((i == (index_data[(6*max_len-1) - (j * 6) -: 5])) ? {8'h11, 8'h00, 8'h00} : {8'h00, 8'h00, 8'h00});
-        end
-    end
-end
+// integer i;
+// integer j;
+// parameter snake_len = 4;
+// parameter  max_len= 4'd8;
+// always @ (*)  begin
+//     for (i = 0; i < 64; i = i + 1) begin
+//         data[i] = {8'h00, 8'h00, 8'h00};
+//         for (j = 0; j < snake_len; j = j + 1) begin
+//             data[i] = ((i == (index_data[(6*max_len-1) - (j * 6) -: 5])) ? {8'h11, 8'h00, 8'h00} : {8'h00, 8'h00, 8'h00});
+//         end
+//     end
+// end
 
 
 
@@ -120,7 +115,70 @@ end
 // assign data[62] = ((score_position == 6'd62)||(6'd62 == index_data[5:0])||(6'd62 == index_data[11:6])||(6'd62 == index_data[17:12])||(6'd62 == index_data[23:18]))?green:0; 
 // assign data[63] = ((score_position == 6'd63)||(6'd63 == index_data[5:0])||(6'd63 == index_data[11:6])||(6'd63 == index_data[17:12])||(6'd63 == index_data[23:18]))?green:0; 
 
-
+assign  data_champin[63]  =  {8'h00,8'h00,8'h00}  ;//0
+assign  data_champin[62]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[61]  =  {8'h11,8'h11,8'h00}  ;
+assign  data_champin[60]  =  {8'h11,8'h11,8'h00}  ;    
+assign  data_champin[59]  =  {8'h11,8'h11,8'h00}  ;
+assign  data_champin[58]  =  {8'h11,8'h11,8'h00}  ;
+assign  data_champin[57]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[56]  =  {8'h00,8'h00,8'h00}  ;    
+assign  data_champin[55]  =  {8'h00,8'h00,8'h00}  ;//1
+assign  data_champin[54]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[53]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[52]  =  {8'h11,8'h11,8'h00}  ;    
+assign  data_champin[51]  =  {8'h11,8'h11,8'h00}  ;
+assign  data_champin[50]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[49]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[48]  =  {8'h00,8'h00,8'h00}  ;    
+assign  data_champin[47]  =  {8'h00,8'h00,8'h00}   ;//2
+assign  data_champin[46]  =  {8'h00,8'h00,8'h00}   ;
+assign  data_champin[45]  =   {8'h00,8'h00,8'h00} ;
+assign  data_champin[44]  =   {8'h11,8'h11,8'h00}  ;    
+assign  data_champin[43]  =   {8'h11,8'h11,8'h00}  ;
+assign  data_champin[42]  =   {8'h00,8'h00,8'h00}  ;
+assign  data_champin[41]  =   {8'h00,8'h00,8'h00}  ;
+assign  data_champin[40]  =   {8'h00,8'h00,8'h00}  ;    
+assign  data_champin[39]  =  {8'h00,8'h00,8'h00}   ;//3
+assign  data_champin[38]  =  {8'h00,8'h00,8'h00}   ;
+assign  data_champin[37]  =   {8'h00,8'h00,8'h00}  ;
+assign  data_champin[36]  =   {8'h11,8'h11,8'h00}  ;    
+assign  data_champin[35]  =   {8'h11,8'h11,8'h00}  ;
+assign  data_champin[34]  =   {8'h00,8'h00,8'h00}  ;
+assign  data_champin[33]  =   {8'h00,8'h00,8'h00}  ;
+assign  data_champin[32]  =   {8'h00,8'h00,8'h00}  ;    
+assign  data_champin[31]  =  {8'h00,8'h00,8'h00}   ;//4
+assign  data_champin[30]  =  {8'h00,8'h00,8'h00}    ;
+assign  data_champin[29]  =  {8'h11,8'h11,8'h00}  ;
+assign  data_champin[28]  =   {8'h00,8'h00,8'h00}  ;    
+assign  data_champin[27]  =   {8'h00,8'h00,8'h00}  ;
+assign  data_champin[26]  =   {8'h11,8'h11,8'h00}  ;
+assign  data_champin[25]  =   {8'h00,8'h00,8'h00}  ;
+assign  data_champin[24]  =   {8'h00,8'h00,8'h00}  ;    
+assign  data_champin[23]  =  {8'h00,8'h00,8'h00}   ;    //5
+assign  data_champin[22]  =  {8'h11,8'h11,8'h00}   ;
+assign  data_champin[21]  =   {8'h00,8'h00,8'h00} ;
+assign  data_champin[20]  =   {8'h00,8'h11,8'h00}   ;
+assign  data_champin[19]  =   {8'h00,8'h11,8'h00} ;    
+assign  data_champin[18]  =   {8'h00,8'h00,8'h00}  ;    
+assign  data_champin[17]  =   {8'h11,8'h11,8'h00}  ;
+assign  data_champin[16]  =   {8'h00,8'h00,8'h00}  ;
+assign  data_champin[15]  =  {8'h00,8'h00,8'h00}  ;//6
+assign  data_champin[14]  =  {8'h11,8'h11,8'h00}  ;
+assign  data_champin[13]  =  {8'h11,8'h11,8'h00} ;
+assign  data_champin[12]  =   {8'h11,8'h11,8'h00} ;
+assign  data_champin[11]  =   {8'h11,8'h11,8'h00} ;    
+assign  data_champin[10]  =   {8'h11,8'h11,8'h00} ;
+assign  data_champin[9]  =   {8'h11,8'h11,8'h00} ;
+assign  data_champin[8]  =   {8'h00,8'h00,8'h00} ;
+assign  data_champin[7]  =  {8'h00,8'h00,8'h00}  ;    //7
+assign  data_champin[6]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[5]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[4]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[3]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[2]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[1]  =  {8'h00,8'h00,8'h00}  ;
+assign  data_champin[0]  =  {8'h00,8'h00,8'h00}  ;
 
 
 always @(*) begin

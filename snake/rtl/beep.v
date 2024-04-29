@@ -1,7 +1,8 @@
-module beep#(parameter CLK_PRE = 50_000_000, TIME_300MS = 15_000_000)(
-    input           clk     ,
-    input           rst_n   ,
-    input          flag     ,
+module beep#(parameter CLK_PRE = 50_000_000, TIME_INPUT= 15_000_000)(//300ms
+    input           clk             ,
+    input           rst_n           ,
+    input           flag            ,
+    input    [3:0]  score_data      ,   //分数
     output reg      pwm
 );
     //频率控制音色 ，占空比控制音量 ，占空比越大，低电平越少，音量越小
@@ -35,20 +36,61 @@ module beep#(parameter CLK_PRE = 50_000_000, TIME_300MS = 15_000_000)(
     wire                    add_cnt3;
     wire                    end_cnt3;
 
+    reg         [3:0]       cnt4    ;   //score_en计数1s
+    wire                    add_cnt4;
+    wire                    end_cnt4;
+
     reg                     ctrl    ;   //后25%消音
     reg                     en      ;
+    reg                     score_en;   //score发声        
 
     always @(posedge clk or negedge rst_n)begin 
         if(!rst_n)begin
             en <= 0;
         end 
-        else if(flag == 1'b1)begin 
+        else if(flag == 1'b1)begin //当flag为1或者score_data不为0时，发声
             en <= 1'b1;
         end
         else begin 
             en <= 1'b0;
         end 
     end
+
+    always @(posedge clk or negedge rst_n)begin
+        if(!rst_n)begin
+            score_en <= 1'b0;
+        end
+        else if(score_data != 4'd0)begin // When score_data is not 0, set score_en to 1
+            score_en <= 1'b1;
+        end
+        else if(cnt4 == (TIME_INPUT - score_data * 3000000) - 1)begin // When cnt4 reaches its maximum value, set score_en to 0
+            score_en <= 1'b0;
+        end
+        else begin
+            score_en <= score_en;
+        end
+    end
+
+    always @(posedge clk or negedge rst_n)begin
+        if(!rst_n)begin
+            cnt4 <= 4'd0;
+        end
+        else if(add_cnt4)begin
+            if(end_cnt4)begin
+                cnt4 <= 4'd0;
+            end
+            else begin
+                cnt4 <= cnt4 + 1'b1;
+            end
+        end
+        else begin
+            cnt4 <= cnt4;
+        end
+    end
+
+    assign add_cnt4 = score_en;
+    assign end_cnt4 = cnt4 == (TIME_INPUT - score_data * 3000000) - 1;
+
 
     always @(posedge clk or negedge rst_n)begin
         if(!rst_n)begin
@@ -91,7 +133,7 @@ module beep#(parameter CLK_PRE = 50_000_000, TIME_300MS = 15_000_000)(
     end 
 
     assign add_cnt2 = en;
-    assign end_cnt2 = add_cnt2 && cnt2 == TIME_300MS -1;
+    assign end_cnt2 = add_cnt2 && cnt2 == (TIME_INPUT - score_data * 3000000) -1 ;
 
     always @(posedge clk or negedge rst_n)begin
         if(!rst_n)begin
@@ -211,7 +253,7 @@ default:X=1;
         if(!rst_n)begin
             ctrl <= 1'b0;
         end
-        else if(cnt2 >= ((TIME_300MS >> 1) + (TIME_300MS >>2)))begin
+        else if(cnt2 >= (((TIME_INPUT - score_data * 3000000) >> 1) + ((TIME_INPUT - score_data * 3000000) >>2)))begin
             ctrl <= 1'b1;
         end
         else if(X == 1)begin
